@@ -1,7 +1,6 @@
-
 # CancellationTokenSource nima?
 
-**CancellationTokenSource** – bu C# tilida `Task` yoki asynchronous (asinxron) operatsiyalarni bekor qilish uchun ishlatiladigan klass.  
+**CancellationTokenSource** – bu C# tilida Task yoki asynchronous (asinxron) operatsiyalarni bekor qilish uchun ishlatiladigan klass.  
 Masalan, fayl yuklash yoki ma’lumot o‘qish jarayonida ushbu klass yordamida ishni majburan to‘xtatish mumkin.
 
 ---
@@ -12,8 +11,8 @@ CancellationTokenSource ishlatishda **ikkita asosiy qism mavjud**:
 
 | Qism | Vazifasi |
 | --- | --- |
-| `CancellationTokenSource` | Signal yuboradi |
-| `CancellationToken` | Signalni qabul qiladi |
+| CancellationTokenSource | Signal yuboradi |
+| CancellationToken | Signalni qabul qiladi |
 
 ---
 
@@ -23,7 +22,7 @@ CancellationTokenSource ishlatishda **ikkita asosiy qism mavjud**:
 - Undan **CancellationToken olinadi**.
 - Vazifa boshlanganda unga shu **token beriladi**.
 - Vazifa davomida token **doimiy tekshirilib turiladi**.
-- Agar `Cancel()` chaqirilsa:
+- Agar Cancel() chaqirilsa:
    - Token **CancellationTokenSource dan signal oladi**.
    - Vazifa **bekor qilinadi**.
 
@@ -44,9 +43,9 @@ Misol:
 
 ### 🚕 Taksi buyurtma qilishda
 
-> Yandex Go orqali taksi chaqirsak (`Task` ishga tushadi).  
-> Agar uzoq kutib haydovchi qabul qilmasa, **“Bekor qilish” tugmasini bosamiz** (`Cancel` signal beradi).  
-> Natijada buyurtma **bekor qilinadi** (`Task stop bo‘ladi`).
+> Yandex Go orqali taksi chaqirsak (Task ishga tushadi).  
+> Agar uzoq kutib haydovchi qabul qilmasa, **“Bekor qilish” tugmasini bosamiz** (Cancel signal beradi).  
+> Natijada buyurtma **bekor qilinadi** (Task stop bo‘ladi).
 
 ---
 
@@ -55,15 +54,15 @@ Misol:
 1.**yaratish**
 
 
-```csharp
+csharp
 CancellationTokenSource cts = new CancellationTokenSource();
-```
+
 2.**Token olish**
-```csharp
+csharp
 CancellationToken token = cts.Token;
-```
+
 3.**Taskni boshlash**
-```csharp
+csharp
 Task.Run(() =>
 {
     while (true)
@@ -76,10 +75,37 @@ Task.Run(() =>
         // vazifa davom etadi
     }
 }, token);
-```
+
 4.**Bekor qilish**
-```csharp
+csharp
 cts.Cancel();
 
-```
 ---
+## Diagram ko'rinishi
+
+---
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant Program as Program
+    participant CTS as CancellationTokenSource
+    participant Token as CancellationToken
+    participant Task as Task
+
+    User->>Program: Start Program
+    Program->>CTS: Creates CancellationTokenSource
+    CTS->>Token: Generates CancellationToken
+    Program->>Task: Starts Task with Token
+
+    Note right of Task: Task is running...
+
+    User->>CTS: Calls Cancel()
+
+    CTS->>Token: Sends cancellation signal
+    Task->>Token: Checks IsCancellationRequested
+    Token-->>Task: Returns true
+
+    Task->>Task: Stops running
+    Task->>Program: Returns control
+    Program->>User: Task was cancelled
+```
